@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+echo "===MY SCRIPT IS CALLED==="
+
+$JBOSS_HOME/bin/jboss-cli.sh <<EOF
+embed-server --std-out=echo  --server-config=standalone-openshift.xml
+
+# Register PostgreSQL JDBC driver
+
+/subsystem=datasources/jdbc-driver=postgresql:add( \
+  driver-name=postgresql, \
+  driver-module-name=org.postgresql, \
+  driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource )
+
+# Create a datasource named KitchensinkJSPQuickstartDS
+
+xa-data-source add \
+  --name=KitchensinkJSPQuickstartDS \
+  --jndi-name=java:jboss/datasources/KitchensinkJSPQuickstartDS \
+  --driver-name=postgresql \
+  --user-name=${env.MYDB_USERNAME} \
+  --password=${env.MYDB_PASSWORD} \
+  --validate-on-match=true \
+  --background-validation=false \
+  --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker \
+  --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter \
+  --xa-datasource-properties={ \
+    "ServerName"=>"${env.MYDB_SERVER}", \
+    "PortNumber"=>"${env.MYDB_PORT}", \
+    "DatabaseName"=>"${env.MYDB_DATABASE}" }
+
+quit
+EOF
+
+echo "===ADDED DATASOURCE IN ASSEMBLE SCRIPT==="
+
+exec /usr/local/s2i/assemble

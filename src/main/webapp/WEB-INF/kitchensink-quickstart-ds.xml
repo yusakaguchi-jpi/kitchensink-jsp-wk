@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is a workaround to create a datasource because
+    .s2i and extensions directories seem not working in eap74-sso-s2i template.
+-->
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+   <xa-datasource jndi-name="java:jboss/datasources/KitchensinkJSPQuickstartDS" pool-name="KitchensinkJSPQuickstartDS">
+       <xa-datasource-property name="ServerName">
+           ${env.MYDB_SERVER}
+       </xa-datasource-property>
+       <xa-datasource-property name="PortNumber">
+           ${env.MYDB_PORT}
+       </xa-datasource-property>
+       <xa-datasource-property name="DatabaseName">
+           ${env.MYDB_DATABASE}
+       </xa-datasource-property>
+       <driver>postgresql</driver>
+       <security>
+           <user-name>${env.MYDB_USERNAME}</user-name>
+           <password>${env.MYDB_PASSWORD}</password>
+       </security>
+       <validation>
+           <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"/>
+           <validate-on-match>true</validate-on-match>
+           <background-validation>false</background-validation>
+           <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"/>
+       </validation>
+   </xa-datasource>
+</datasources>
+
