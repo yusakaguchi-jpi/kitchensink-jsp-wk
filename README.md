@@ -6,12 +6,15 @@ paginate: true
 headingDivider: 2
 ---
 
-# Links
+[GitHubのonagano-rh/kitchensink-jsp-db2](https://github.com/onagano-rh/kitchensink-jsp-db2) について：
 
-- [GitHubのonagano-rh/kitchensink-jsp-db2](https://github.com/onagano-rh/kitchensink-jsp-db2)
-  - README.md が本スライドと同じ内容
-  - [EAP 7.4のQuickstarts](https://github.com/jboss-developer/jboss-eap-quickstarts/tree/7.4.x) の kitchensink-jsp にS2Iの仕組みでDB2 (AS400版) のドライバを仕込んだもの
-  - 各自フォークして使ってもよい
+- [EAP 7.4のQuickstarts](https://github.com/jboss-developer/jboss-eap-quickstarts/tree/7.4.x) の kitchensink-jsp にS2Iの仕組みでDB2 (AS400版) のドライバを仕込んである
+- eap74-sso-s2i のTemplateを使用してKeycloakでアプリを保護
+  - このTemplateはPassthrough TLSのRouteを使用しているため [RH-SSOの同様のドキュメント](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.6/html-single/red_hat_single_sign-on_for_openshift/index#deploying_passthrough_tls_termination_templates) が参考になる
+
+ソースの編集も行う者は各自フォークして使うのがよい。その際リポジトリ名は自分のものに読み替えること。
+
+
 
 # Keycloakのインストール
 
@@ -60,6 +63,8 @@ oc new-app --template=postgresql-persistent \
   -p POSTGRESQL_DATABASE=kcdatabase
 ```
 
+このとき指定したDATABASE_SERVICE_NAMEと同名のSecretにユーザ名やパスワードが格納されるので、次のKeycloak CR作成時にそれを参照する。
+
 ## Keyclaokそのものをインストール
 
 先に作成したDBを指すように設定してKeycloak CR (Custom Resoruce) をインスタンス化する。
@@ -89,8 +94,6 @@ spec:
       value: edge
 EOF
 ```
-
-DB作成時に指定したDATABASE_SERVICE_NAMEと同名のSecretにユーザ名やパスワードが格納されているのでそれを参照している。
 
 ## Routeと初期パスワードの確認
 
@@ -132,7 +135,7 @@ masterレルムのユーザadminでの最後の作業として、実際に使用
 
 # Keycloakで保護された本プロジェクトのビルドとデプロイ
 
-** WORK IN PROGRESS **
+__WORK IN PROGRESS__
 
 以降の作業はOpenShiftの通常ユーザの権限で行う。
 
@@ -214,6 +217,14 @@ oc create secret generic eap7-app-secret --from-file=keystore.jks --from-file=jg
 oc secrets link default eap7-app-secret
 ```
 
+## データソース作成用のConfigMapの作成
+
+今回使用するTemplateのeap74-sso-s2iでは自動ではextensionsディレクトリをマウントしてくれないため、`oc new-app`直後に自分で`oc set volume`コマンドでマウントすることになる。その際に使用するConfigMapを事前に作成しておく。
+
+```shell
+oc create configmap jboss-cli --from-file=postconfigure.sh=extensions/postconfigure.sh --from-file=config-database.cli=extensions/config-database.cli
+```
+
 ## アプリのビルドとデプロイ
 
 ```shell
@@ -244,12 +255,39 @@ oc new-app --template=eap74-sso-s2i \
   -p SSO_ENABLE_CORS="true" \
   -e ENABLE_ACCESS_LOG="true" \
   -e DISABLE_EMBEDDED_JMS_BROKER="true" \
+  -e SSO_FORCE_LEGACY_SECURITY="false" \
   -e MYDB_USERNAME=XXXX \
   -e MYDB_PASSWORD=XXXX \
   -e MYDB_DATABASE=XXXX \
   -e MYDB_SERVER=XXXX \
   -e MYDB_PORT=not-used-by-db2
+
+# データソース作成用スクリプトをマウント
+oc set volume dc/myapp --add --name=jboss-cli -m /opt/eap/extensions -t configmap --configmap-name=jboss-cli --default-mode='0755' --overwrite
 ```
 
 `MYDB_` で始まる変数の "XXXX" は用意されたDB2の接続情報に合わせる。
+
+## 様々なocコマンド
+
+```shell
+# ビルドの様子を確認 (1/2, Mavenビルドの様子)
+oc logs -f bc/myapp-build-artifacts
+
+# ビルドの様子を確認 (2/2, ROOT.warを入れ込むDockerビルドの様子)
+oc logs -f bc/myapp
+
+# (コードを編集してpush後に)ビルドを再開
+oc start-build myapp-build-artifacts --follow --incremental
+
+# oc new-appで作成されたリソースを全て削除
+oc delete all -l application=myapp
+```
+
+## 動作確認
+
+```shell
+# Routeの確認 ("https://"を付けてブラウザでアクセス)
+oc get route
+```
 
