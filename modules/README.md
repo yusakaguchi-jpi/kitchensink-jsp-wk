@@ -2,8 +2,10 @@
 
 1. Download a driver you want from the Maven repository
 
-    # IBM DB2 for iSeriese (AS400): ls ~/.m2/repository/net/sf/jt400/jt400/20.0.6/jt400-20.0.6.jar
-    mvn dependency:get -Dartifact=net.sf.jt400:jt400:20.0.6
+```shell
+# IBM DB2 for iSeriese (AS400): ls ~/.m2/repository/net/sf/jt400/jt400/20.0.6/jt400-20.0.6.jar
+mvn dependency:get -Dartifact=net.sf.jt400:jt400:20.0.6
+```
 
 2. Install the driver as a module
 
