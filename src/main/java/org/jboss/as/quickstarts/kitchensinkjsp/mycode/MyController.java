@@ -50,7 +50,7 @@ public class MyController {
 
         try (Connection con = dataSource.getConnection()) {
             Statement s = con.createStatement();
-            ResultSet rs = s.executeQuery("SELECT name, email, phone_number FROM memberjsp");
+            ResultSet rs = s.executeQuery("SELECT UA1010, UA1A90, UA1230 FROM UA1P WHERE UA1010='B1644'");
             while (rs.next()) {
                 Map<String, String> row = new HashMap<String, String>();
                 row.put("name", rs.getString(1));
