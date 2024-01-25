@@ -7,21 +7,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 
 @RequestScoped
 public class MyController {
-
-    @Inject
-    private Logger log;
 
     @Resource(lookup = "java:jboss/datasources/KitchensinkJSPQuickstartDS")
     DataSource dataSource;
@@ -29,7 +23,6 @@ public class MyController {
     @Produces
     @Named
     public List<MyMember> getMyList() {
-        log.info(String.format("Got %s object", dataSource));
 
         List<MyMember> members = new ArrayList<MyMember>();
 
@@ -46,7 +39,7 @@ public class MyController {
             }
         }
         catch (Exception e) {
-            log.log(Level.WARNING, "something wrong", e);
+            e.printStackTrace();
         }
 
         return members;
