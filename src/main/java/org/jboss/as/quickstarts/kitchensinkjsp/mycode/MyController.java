@@ -53,9 +53,9 @@ public class MyController {
             ResultSet rs = s.executeQuery("SELECT UA1010, UA1A90, UA1230 FROM UA1P WHERE UA1010='B1644'");
             while (rs.next()) {
                 Map<String, String> row = new HashMap<String, String>();
-                row.put("name", rs.getString(1));
-                row.put("email", rs.getString(2));
-                row.put("phone_number", rs.getString(3));
+                row.put("UA1010", rs.getString(1));
+                row.put("UA1A90", rs.getString(2));
+                row.put("UA1230", rs.getString(3));
                 list.add(row);
             }
         }
