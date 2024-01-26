@@ -7,7 +7,7 @@
 <head>
     <title>kitchensink-jsp</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="https://csszengarden.com/219/219.css" />
+    <link rel="stylesheet" type="text/css" href="https://csszengarden.com/200/200.css" />
 </head>
 
 <body>
