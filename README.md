@@ -58,7 +58,7 @@ oc create secret generic my-github-key \
 
 
 
-MY_GITHUB_REPOSITORY=onagano-rh/kitchensink-jsp-wk
+MY_GITHUB_REPOSITORY=yuksakaguchi-jpi/kitchensink-jsp-wk
 
 oc new-app --template=eap74-basic-s2i \
   -p APPLICATION_NAME=myapp  \
